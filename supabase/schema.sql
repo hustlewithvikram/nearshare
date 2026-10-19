@@ -14,6 +14,11 @@ create table if not exists public.listings (
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
 );
+-- Safe migration for existing installs: add optional coordinates for nearby discovery.
+alter table public.listings add column if not exists latitude double precision;
+alter table public.listings add column if not exists longitude double precision;
+alter table public.listings drop constraint if exists listings_coordinates_pair_check;
+alter table public.listings add constraint listings_coordinates_pair_check check ((latitude is null and longitude is null) or (latitude between -90 and 90 and longitude between -180 and 180));
 create index if not exists listings_active_created_at_idx on public.listings (created_at desc) where status='active';
 create index if not exists listings_owner_id_idx on public.listings (owner_id);
 alter table public.listings enable row level security;
