@@ -41,6 +41,7 @@ import com.vikram.nearshare.ui.screens.CreateListingScreen
 import com.vikram.nearshare.ui.screens.ExploreScreen
 import com.vikram.nearshare.ui.screens.HomeScreen
 import com.vikram.nearshare.ui.screens.ProfileScreen
+import com.vikram.nearshare.ui.screens.RequestsScreen
 import com.vikram.nearshare.ui.screens.SavedScreen
 import com.vikram.nearshare.ui.screens.UpdatesScreen
 
@@ -49,16 +50,16 @@ import com.vikram.nearshare.ui.screens.UpdatesScreen
 fun NearShareApp() {
     var destination by rememberSaveable { mutableStateOf(AppDestination.HOME) }
 
-    BackHandler(enabled = destination == AppDestination.CREATE_LISTING || destination == AppDestination.UPDATES) {
-        destination = if (destination == AppDestination.UPDATES) AppDestination.PROFILE else AppDestination.HOME
+    BackHandler(enabled = destination == AppDestination.CREATE_LISTING || destination == AppDestination.UPDATES || destination == AppDestination.REQUESTS) {
+        destination = if (destination == AppDestination.UPDATES || destination == AppDestination.REQUESTS) AppDestination.PROFILE else AppDestination.HOME
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    if (destination == AppDestination.CREATE_LISTING) {
-                        IconButton(onClick = { destination = AppDestination.HOME }) {
+                    if (destination == AppDestination.CREATE_LISTING || destination == AppDestination.UPDATES || destination == AppDestination.REQUESTS) {
+                        IconButton(onClick = { destination = if (destination == AppDestination.CREATE_LISTING) AppDestination.HOME else AppDestination.PROFILE }) {
                             Icon(Icons.Default.ArrowBack, contentDescription = "Back")
                         }
                     }
@@ -104,6 +105,7 @@ fun NearShareApp() {
                                         AppDestination.SAVED -> Icons.Default.FavoriteBorder
                                         AppDestination.PROFILE -> Icons.Default.Person
                                         AppDestination.UPDATES -> Icons.Default.SystemUpdate
+                                        AppDestination.REQUESTS -> Icons.Default.FavoriteBorder
                                         AppDestination.CREATE_LISTING -> Icons.Default.Add
                                     },
                                     contentDescription = item.title
@@ -116,7 +118,7 @@ fun NearShareApp() {
             }
         },
         floatingActionButton = {
-            if (destination != AppDestination.CREATE_LISTING) {
+            if (destination != AppDestination.CREATE_LISTING && destination != AppDestination.UPDATES && destination != AppDestination.REQUESTS) {
                 FloatingActionButton(
                     onClick = { destination = AppDestination.CREATE_LISTING },
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -136,8 +138,9 @@ fun NearShareApp() {
             )
             AppDestination.EXPLORE -> ExploreScreen(modifier = screenModifier)
             AppDestination.SAVED -> SavedScreen(modifier = screenModifier)
-            AppDestination.PROFILE -> ProfileScreen(modifier = screenModifier, onOpenUpdates = { destination = AppDestination.UPDATES })
+            AppDestination.PROFILE -> ProfileScreen(modifier = screenModifier, onOpenUpdates = { destination = AppDestination.UPDATES }, onOpenRequests = { destination = AppDestination.REQUESTS })
             AppDestination.UPDATES -> UpdatesScreen(modifier = screenModifier)
+            AppDestination.REQUESTS -> RequestsScreen(modifier = screenModifier)
             AppDestination.CREATE_LISTING -> CreateListingScreen(modifier = screenModifier, onCreated = { destination = AppDestination.EXPLORE })
         }
     }
