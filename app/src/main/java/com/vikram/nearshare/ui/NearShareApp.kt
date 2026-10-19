@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -42,6 +43,8 @@ import com.vikram.nearshare.ui.screens.ExploreScreen
 import com.vikram.nearshare.ui.screens.HomeScreen
 import com.vikram.nearshare.ui.screens.ProfileScreen
 import com.vikram.nearshare.ui.screens.RequestsScreen
+import com.vikram.nearshare.ui.screens.MessagesScreen
+import com.vikram.nearshare.ui.screens.NotificationsScreen
 import com.vikram.nearshare.ui.screens.SavedScreen
 import com.vikram.nearshare.ui.screens.UpdatesScreen
 
@@ -50,8 +53,8 @@ import com.vikram.nearshare.ui.screens.UpdatesScreen
 fun NearShareApp() {
     var destination by rememberSaveable { mutableStateOf(AppDestination.HOME) }
 
-    BackHandler(enabled = destination == AppDestination.CREATE_LISTING || destination == AppDestination.UPDATES || destination == AppDestination.REQUESTS) {
-        destination = if (destination == AppDestination.UPDATES || destination == AppDestination.REQUESTS) AppDestination.PROFILE else AppDestination.HOME
+    BackHandler(enabled = destination == AppDestination.CREATE_LISTING || destination == AppDestination.UPDATES || destination == AppDestination.REQUESTS || destination == AppDestination.MESSAGES || destination == AppDestination.NOTIFICATIONS) {
+        destination = if (destination == AppDestination.UPDATES || destination == AppDestination.REQUESTS || destination == AppDestination.MESSAGES || destination == AppDestination.NOTIFICATIONS) AppDestination.PROFILE else AppDestination.HOME
     }
 
     Scaffold(
@@ -106,6 +109,8 @@ fun NearShareApp() {
                                         AppDestination.PROFILE -> Icons.Default.Person
                                         AppDestination.UPDATES -> Icons.Default.SystemUpdate
                                         AppDestination.REQUESTS -> Icons.Default.FavoriteBorder
+                                        AppDestination.MESSAGES -> Icons.Default.Person
+                                        AppDestination.NOTIFICATIONS -> Icons.Default.Notifications
                                         AppDestination.CREATE_LISTING -> Icons.Default.Add
                                     },
                                     contentDescription = item.title
@@ -118,7 +123,7 @@ fun NearShareApp() {
             }
         },
         floatingActionButton = {
-            if (destination != AppDestination.CREATE_LISTING && destination != AppDestination.UPDATES && destination != AppDestination.REQUESTS) {
+            if (destination != AppDestination.CREATE_LISTING && destination != AppDestination.UPDATES && destination != AppDestination.REQUESTS && destination != AppDestination.MESSAGES && destination != AppDestination.NOTIFICATIONS) {
                 FloatingActionButton(
                     onClick = { destination = AppDestination.CREATE_LISTING },
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -138,9 +143,11 @@ fun NearShareApp() {
             )
             AppDestination.EXPLORE -> ExploreScreen(modifier = screenModifier)
             AppDestination.SAVED -> SavedScreen(modifier = screenModifier)
-            AppDestination.PROFILE -> ProfileScreen(modifier = screenModifier, onOpenUpdates = { destination = AppDestination.UPDATES }, onOpenRequests = { destination = AppDestination.REQUESTS })
+            AppDestination.PROFILE -> ProfileScreen(modifier = screenModifier, onOpenUpdates = { destination = AppDestination.UPDATES }, onOpenRequests = { destination = AppDestination.REQUESTS }, onOpenMessages = { destination = AppDestination.MESSAGES }, onOpenNotifications = { destination = AppDestination.NOTIFICATIONS })
             AppDestination.UPDATES -> UpdatesScreen(modifier = screenModifier)
             AppDestination.REQUESTS -> RequestsScreen(modifier = screenModifier)
+            AppDestination.MESSAGES -> MessagesScreen(modifier = screenModifier)
+            AppDestination.NOTIFICATIONS -> NotificationsScreen(modifier = screenModifier)
             AppDestination.CREATE_LISTING -> CreateListingScreen(modifier = screenModifier, onCreated = { destination = AppDestination.EXPLORE })
         }
     }
