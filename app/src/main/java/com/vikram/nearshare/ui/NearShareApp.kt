@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -102,6 +103,7 @@ fun NearShareApp() {
                                         AppDestination.EXPLORE -> Icons.Default.Explore
                                         AppDestination.SAVED -> Icons.Default.FavoriteBorder
                                         AppDestination.PROFILE -> Icons.Default.Person
+                                        AppDestination.UPDATES -> Icons.Default.SystemUpdate
                                         AppDestination.CREATE_LISTING -> Icons.Default.Add
                                     },
                                     contentDescription = item.title
