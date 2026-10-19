@@ -160,7 +160,9 @@ class AuthRepository(context: Context) {
             setRequestProperty("apikey", anonKey)
             setRequestProperty("Accept", "application/json")
             setRequestProperty("Content-Type", "application/json")
-            setRequestProperty("Authorization", "Bearer ${accessToken ?: anonKey}")
+            if (!accessToken.isNullOrBlank()) {
+                setRequestProperty("Authorization", "Bearer $accessToken")
+            }
             if (body != null) doOutput = true
         }
         try {
