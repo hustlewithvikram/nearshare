@@ -31,6 +31,11 @@ class ListingRepository(private val context: Context) {
         val array = JSONArray(request(path, "GET", token = token))
         (0 until array.length()).mapNotNull { i -> array.optJSONObject(i)?.let { row -> val item = row.optJSONObject("listings") ?: JSONObject(); ListingRequest(row.optString("id"), row.optString("listing_id"), item.optString("title"), row.optString("requester_id"), item.optString("owner_id"), row.optString("message"), row.optString("status")) } }
     }
+    suspend fun reportListing(listingId: String, reporterId: String, reason: String, details: String, token: String) = withContext(Dispatchers.IO) {
+        val cleanReason = reason.trim()
+        if (cleanReason.isBlank()) throw IOException("Choose a reason for the report.")
+        request("/rest/v1/listing_reports", "POST", JSONObject().put("listing_id", listingId).put("reporter_id", reporterId).put("reason", cleanReason).put("details", details.trim().take(1000)), token, mapOf("Prefer" to "return=minimal"))
+    }
     suspend fun setRequestStatus(id: String, status: String, token: String) = withContext(Dispatchers.IO) {
         if (status !in setOf("accepted", "declined", "cancelled", "completed")) throw IOException("Invalid request status.")
         request("/rest/v1/listing_requests?id=eq.$id", "PATCH", JSONObject().put("status", status), token, mapOf("Prefer" to "return=minimal"))

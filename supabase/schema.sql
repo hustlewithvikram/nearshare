@@ -67,3 +67,19 @@ drop policy if exists "Members update images in their own folder" on storage.obj
 create policy "Members update images in their own folder" on storage.objects for update to authenticated using(bucket_id='nearshare-listing-images' and (storage.foldername(name))[1]=auth.uid()::text) with check(bucket_id='nearshare-listing-images' and (storage.foldername(name))[1]=auth.uid()::text);
 drop policy if exists "Members delete images in their own folder" on storage.objects;
 create policy "Members delete images in their own folder" on storage.objects for delete to authenticated using(bucket_id='nearshare-listing-images' and (storage.foldername(name))[1]=auth.uid()::text);
+
+-- Phase 6: member safety reports.
+create table if not exists public.listing_reports (
+ id uuid primary key default gen_random_uuid(),
+ listing_id uuid not null references public.listings(id) on delete cascade,
+ reporter_id uuid not null references auth.users(id) on delete cascade,
+ reason text not null check (char_length(reason) between 1 and 80),
+ details text not null default '' check (char_length(details) <= 1000),
+ status text not null default 'open' check (status in ('open','reviewing','resolved','dismissed')),
+ created_at timestamptz not null default now()
+);
+create index if not exists listing_reports_status_created_idx on public.listing_reports(status, created_at desc);
+alter table public.listing_reports enable row level security;
+drop policy if exists "Members can report other members listings" on public.listing_reports;
+create policy "Members can report other members listings" on public.listing_reports for insert to authenticated with check (auth.uid() = reporter_id and exists (select 1 from public.listings l where l.id = listing_id and l.owner_id <> auth.uid()));
+-- Reports are not readable by ordinary members. A trusted moderation workflow is required to review them.

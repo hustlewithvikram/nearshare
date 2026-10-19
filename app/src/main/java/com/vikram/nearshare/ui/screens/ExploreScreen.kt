@@ -122,6 +122,27 @@ fun ExploreScreen(modifier: Modifier = Modifier) {
                                 style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                             Text(listing.description, style = MaterialTheme.typography.bodyMedium)
                             if (auth.currentUserId() != null && auth.currentUserId() != listing.ownerId) {
+                                var reportDialog by remember(listing.id) { mutableStateOf(false) }
+                                var reportNotice by remember(listing.id) { mutableStateOf<String?>(null) }
+                                var reportBusy by remember(listing.id) { mutableStateOf(false) }
+                                TextButton(onClick = { reportDialog = true }, enabled = !reportBusy) { Text("Report listing") }
+                                reportNotice?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary) }
+                                if (reportDialog) {
+                                    var reason by remember(listing.id) { mutableStateOf("Misleading or inaccurate") }
+                                    var details by remember(listing.id) { mutableStateOf("") }
+                                    var reportError by remember(listing.id) { mutableStateOf<String?>(null) }
+                                    AlertDialog(onDismissRequest = { if (!reportBusy) reportDialog = false }, title = { Text("Report listing") },
+                                        text = { Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Text("Choose the reason that best describes this listing.")
+                                            listOf("Misleading or inaccurate", "Prohibited item", "Suspicious or scam", "Inappropriate content", "Other").forEach { option ->
+                                                Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) { RadioButton(selected = reason == option, onClick = { reason = option }); Text(option) }
+                                            }
+                                            OutlinedTextField(value = details, onValueChange = { details = it.take(1000) }, label = { Text("Additional details (optional)") }, minLines = 2)
+                                            reportError?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+                                        } },
+                                        confirmButton = { TextButton(onClick = { scope.launch { reportBusy = true; try { repository.reportListing(listing.id, auth.currentUserId() ?: error("Sign in again."), reason, details, auth.accessToken() ?: error("Sign in again.")); reportNotice = "Report submitted for review."; reportDialog = false } catch (e: Exception) { reportError = e.message ?: "Could not submit report." } finally { reportBusy = false } } }, enabled = !reportBusy) { Text(if (reportBusy) "Submitting…" else "Submit report") } },
+                                        dismissButton = { TextButton(onClick = { reportDialog = false }, enabled = !reportBusy) { Text("Cancel") } })
+                                }
                                 var requestDialog by remember(listing.id) { mutableStateOf(false) }
                                 OutlinedButton(onClick = { requestDialog = true }, modifier = Modifier.fillMaxWidth()) { Text("Request item") }
                                 if (requestDialog) {
