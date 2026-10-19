@@ -15,6 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - name: Validate signing secrets
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -29,35 +30,47 @@ jobs:
               exit 1
             fi
           done
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
+
       - uses: gradle/actions/setup-gradle@v4
-      - name: Decode release keystore
+
+      - name: Decode signing keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
-        run: echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/nearshare-release.jks"
-      - name: Build signed APK
-        env:
-          STORE_FILE: ${{ runner.temp }}/nearshare-release.jks
-          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          sh ./gradlew --no-daemon --stacktrace assembleRelease \
-            -Pandroid.injected.signing.store.file="$STORE_FILE" \
-            -Pandroid.injected.signing.store.password="$STORE_PASSWORD" \
-            -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
-            -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
-      - name: Rename signed APK
-        run: cp app/build/outputs/apk/release/app-release.apk nearshare-playstore.apk
+          set -euo pipefail
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/nearshare-signing.jks"
+          test -s "$RUNNER_TEMP/nearshare-signing.jks"
+
+      - name: Build signed Play Store APK
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/nearshare-signing.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: sh ./gradlew --no-daemon --stacktrace assembleRelease
+
+      - name: Verify APK signature and rename
+        run: |
+          set -euo pipefail
+          APK="app/build/outputs/apk/release/app-release.apk"
+          test -f "$APK"
+          APKSIGNER="$(find "$ANDROID_HOME/build-tools" -mindepth 2 -maxdepth 2 -name apksigner -type f | sort -V | tail -n 1)"
+          test -n "$APKSIGNER"
+          "$APKSIGNER" verify --verbose --print-certs "$APK"
+          cp "$APK" nearshare-playstore.apk
+
       - uses: actions/upload-artifact@v4
         with:
           name: nearshare-playstore-apk
           path: nearshare-playstore.apk
           if-no-files-found: error
           retention-days: 14
+
       - name: Remove temporary keystore
         if: always()
-        run: rm -f "$RUNNER_TEMP/nearshare-release.jks"
+        run: rm -f "$RUNNER_TEMP/nearshare-signing.jks"
