@@ -268,9 +268,8 @@ private fun ProfileAction(
     subtitle: String,
     onClick: () -> Unit
 ) {
-    androidx.compose.foundation.clickable(onClick = onClick)
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
