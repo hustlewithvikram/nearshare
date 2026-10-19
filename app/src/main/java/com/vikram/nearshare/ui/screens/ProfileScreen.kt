@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -42,7 +41,7 @@ import com.vikram.nearshare.data.auth.AuthUser
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, onOpenUpdates: () -> Unit = {}) {
+fun ProfileScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val repository = remember(context) { AuthRepository(context.applicationContext) }
     val scope = rememberCoroutineScope()
@@ -73,10 +72,6 @@ fun ProfileScreen(modifier: Modifier = Modifier, onOpenUpdates: () -> Unit = {})
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        OutlinedButton(onClick = onOpenUpdates, modifier = Modifier.fillMaxWidth()) {
-            Icon(Icons.Default.SystemUpdate, contentDescription = null)
-            Text("App updates")
-        }
         if (loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             Text("Checking your account…", style = MaterialTheme.typography.bodyMedium)

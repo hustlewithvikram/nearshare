@@ -103,10 +103,12 @@ jobs:
           if gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
             echo "Found existing latest debug release; replacing its APK asset."
           else
-            gh release create "$RELEASE_TAG"               --repo "$REPOSITORY"               --title "$RELEASE_TITLE"               --notes "Latest signed debug build of NearShare.\n\nversionCode: ${GITHUB_RUN_NUMBER}\nversionName: 1.0.${GITHUB_RUN_NUMBER}-debug"               --prerelease
+            printf "Latest signed debug build of NearShare.\n\nversionCode: %s\nversionName: 1.0.%s-debug\n" "$GITHUB_RUN_NUMBER" "$GITHUB_RUN_NUMBER" > "$RUNNER_TEMP/release-notes.md"
+            gh release create "$RELEASE_TAG" --repo "$REPOSITORY" --title "$RELEASE_TITLE" --notes-file "$RUNNER_TEMP/release-notes.md" --prerelease
           fi
 
-          gh release edit "$RELEASE_TAG" --repo "$REPOSITORY" --notes "Latest signed debug build of NearShare.\n\nversionCode: ${GITHUB_RUN_NUMBER}\nversionName: 1.0.${GITHUB_RUN_NUMBER}-debug"
+          printf "Latest signed debug build of NearShare.\n\nversionCode: %s\nversionName: 1.0.%s-debug\n" "$GITHUB_RUN_NUMBER" "$GITHUB_RUN_NUMBER" > "$RUNNER_TEMP/release-notes.md"
+          gh release edit "$RELEASE_TAG" --repo "$REPOSITORY" --notes-file "$RUNNER_TEMP/release-notes.md"
           gh release upload "$RELEASE_TAG" nearshare-debug.apk --repo "$REPOSITORY" --clobber
 
           {

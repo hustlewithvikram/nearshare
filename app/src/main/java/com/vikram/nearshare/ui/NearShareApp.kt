@@ -41,15 +41,14 @@ import com.vikram.nearshare.ui.screens.ExploreScreen
 import com.vikram.nearshare.ui.screens.HomeScreen
 import com.vikram.nearshare.ui.screens.ProfileScreen
 import com.vikram.nearshare.ui.screens.SavedScreen
-import com.vikram.nearshare.ui.screens.UpdatesScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NearShareApp() {
     var destination by rememberSaveable { mutableStateOf(AppDestination.HOME) }
 
-    BackHandler(enabled = destination == AppDestination.CREATE_LISTING || destination == AppDestination.UPDATES) {
-        destination = if (destination == AppDestination.UPDATES) AppDestination.PROFILE else AppDestination.HOME
+    BackHandler(enabled = destination == AppDestination.CREATE_LISTING) {
+        destination = AppDestination.HOME
     }
 
     Scaffold(
@@ -134,8 +133,7 @@ fun NearShareApp() {
             )
             AppDestination.EXPLORE -> ExploreScreen(modifier = screenModifier)
             AppDestination.SAVED -> SavedScreen(modifier = screenModifier)
-            AppDestination.PROFILE -> ProfileScreen(modifier = screenModifier, onOpenUpdates = { destination = AppDestination.UPDATES })
-            AppDestination.UPDATES -> UpdatesScreen(modifier = screenModifier)
+            AppDestination.PROFILE -> ProfileScreen(modifier = screenModifier)
             AppDestination.CREATE_LISTING -> CreateListingScreen(modifier = screenModifier)
         }
     }

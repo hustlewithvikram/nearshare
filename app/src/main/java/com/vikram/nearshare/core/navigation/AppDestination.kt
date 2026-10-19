@@ -14,7 +14,6 @@ enum class AppDestination(
     EXPLORE("Explore"),
     SAVED("Saved"),
     PROFILE("Profile"),
-    UPDATES("App updates", showInNavigation = false),
     CREATE_LISTING("Create a listing", showInNavigation = false);
 
     companion object {
