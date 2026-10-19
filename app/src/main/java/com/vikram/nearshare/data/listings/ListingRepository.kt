@@ -18,7 +18,9 @@ data class Listing(
     val location: String, val imageUrl: String?, val createdAt: String, val latitude: Double?, val longitude: Double?
 )
 
-data class ListingRequest(val id: String, val listingId: String, val listingTitle: String, val requesterId: String, val ownerId: String, val message: String, val status: String)
+data class ListingRequest(val id: String, val listingId: String, val listingTitle: String, val requesterId: String, val ownerId: String, val message: String, val status: String, val createdAt: String = "")
+data class ListingMessage(val id: String, val requestId: String, val senderId: String, val body: String, val createdAt: String)
+data class AppNotification(val id: String, val title: String, val body: String, val createdAt: String, val readAt: String?)
 
 class ListingRepository(private val context: Context) {
     suspend fun requestListing(listingId: String, message: String, token: String) = withContext(Dispatchers.IO) {
@@ -29,8 +31,37 @@ class ListingRepository(private val context: Context) {
         val userId = currentUserId(token)
         val path = if (incoming) "/rest/v1/listing_requests?select=*,listings!inner(title,owner_id)&listings.owner_id=eq.$userId&order=created_at.desc" else "/rest/v1/listing_requests?select=*,listings!inner(title,owner_id)&requester_id=eq.$userId&order=created_at.desc"
         val array = JSONArray(request(path, "GET", token = token))
-        (0 until array.length()).mapNotNull { i -> array.optJSONObject(i)?.let { row -> val item = row.optJSONObject("listings") ?: JSONObject(); ListingRequest(row.optString("id"), row.optString("listing_id"), item.optString("title"), row.optString("requester_id"), item.optString("owner_id"), row.optString("message"), row.optString("status")) } }
+        (0 until array.length()).mapNotNull { i -> array.optJSONObject(i)?.let { row -> val item = row.optJSONObject("listings") ?: JSONObject(); ListingRequest(row.optString("id"), row.optString("listing_id"), item.optString("title"), row.optString("requester_id"), item.optString("owner_id"), row.optString("message"), row.optString("status"), row.optString("created_at")) } }
     }
+
+    suspend fun getMessages(requestId: String, token: String): List<ListingMessage> = withContext(Dispatchers.IO) {
+        val path = "/rest/v1/listing_messages?select=*&request_id=eq.${encode(requestId)}&order=created_at.asc&limit=300"
+        val array = JSONArray(request(path, "GET", token = token))
+        (0 until array.length()).mapNotNull { i -> array.optJSONObject(i)?.let { row ->
+            ListingMessage(row.optString("id"), row.optString("request_id"), row.optString("sender_id"), row.optString("body"), row.optString("created_at"))
+        } }
+    }
+
+    suspend fun sendMessage(requestId: String, body: String, token: String) = withContext(Dispatchers.IO) {
+        val clean = body.trim()
+        if (clean.isBlank() || clean.length > 2000) throw IOException("Messages must be between 1 and 2,000 characters.")
+        request("/rest/v1/listing_messages", "POST", JSONObject().put("request_id", requestId).put("body", clean), token, mapOf("Prefer" to "return=minimal"))
+    }
+
+    suspend fun getNotifications(token: String): List<AppNotification> = withContext(Dispatchers.IO) {
+        val userId = currentUserId(token)
+        val path = "/rest/v1/app_notifications?select=*&recipient_id=eq.${encode(userId)}&order=created_at.desc&limit=100"
+        val array = JSONArray(request(path, "GET", token = token))
+        (0 until array.length()).mapNotNull { i -> array.optJSONObject(i)?.let { row ->
+            AppNotification(row.optString("id"), row.optString("title"), row.optString("body"), row.optString("created_at"), row.optString("read_at").takeIf { it.isNotBlank() && it != "null" })
+        } }
+    }
+
+    suspend fun markNotificationsRead(token: String) = withContext(Dispatchers.IO) {
+        val userId = currentUserId(token)
+        request("/rest/v1/app_notifications?recipient_id=eq.${encode(userId)}&read_at=is.null", "PATCH", JSONObject().put("read_at", java.time.Instant.now().toString()), token, mapOf("Prefer" to "return=minimal"))
+    }
+
     suspend fun reportListing(listingId: String, reporterId: String, reason: String, details: String, token: String) = withContext(Dispatchers.IO) {
         val cleanReason = reason.trim()
         if (cleanReason.isBlank()) throw IOException("Choose a reason for the report.")
