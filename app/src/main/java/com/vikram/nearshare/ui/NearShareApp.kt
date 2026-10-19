@@ -138,7 +138,7 @@ fun NearShareApp() {
             AppDestination.SAVED -> SavedScreen(modifier = screenModifier)
             AppDestination.PROFILE -> ProfileScreen(modifier = screenModifier, onOpenUpdates = { destination = AppDestination.UPDATES })
             AppDestination.UPDATES -> UpdatesScreen(modifier = screenModifier)
-            AppDestination.CREATE_LISTING -> CreateListingScreen(modifier = screenModifier)
+            AppDestination.CREATE_LISTING -> CreateListingScreen(modifier = screenModifier, onCreated = { destination = AppDestination.EXPLORE })
         }
     }
 }

@@ -31,6 +31,15 @@ class AuthRepository(context: Context) {
 
     fun isConfigured(): Boolean = baseUrl.startsWith("https://") && anonKey.isNotBlank()
 
+    fun accessToken(): String? = preferences.getString(KEY_ACCESS_TOKEN, null)
+
+    fun currentUserId(): String? = runCatching {
+        val token = accessToken() ?: return@runCatching null
+        val payload = token.split(".").getOrNull(1) ?: return@runCatching null
+        val decoded = android.util.Base64.decode(payload, android.util.Base64.URL_SAFE or android.util.Base64.NO_WRAP or android.util.Base64.NO_PADDING)
+        JSONObject(String(decoded, Charsets.UTF_8)).optString("sub").takeIf { it.isNotBlank() }
+    }.getOrNull()
+
     suspend fun restoreSession(): AuthUser? = withContext(Dispatchers.IO) {
         if (!isConfigured()) return@withContext null
         val token = preferences.getString(KEY_ACCESS_TOKEN, null) ?: return@withContext null
