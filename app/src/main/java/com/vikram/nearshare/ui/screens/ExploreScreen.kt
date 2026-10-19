@@ -4,6 +4,8 @@ import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -75,9 +77,12 @@ fun ExploreScreen(modifier: Modifier = Modifier) {
             else DeviceLocation.distanceKm(userLatitude!!, userLongitude!!, it.latitude, it.longitude)
         } else items }
     Column(modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        OutlinedTextField(value = search, onValueChange = { search = it }, label = { Text("Search items") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }, singleLine = true, modifier = Modifier.fillMaxWidth())
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            OutlinedTextField(value = search, onValueChange = { search = it }, placeholder = { Text("Search items") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }, singleLine = true, modifier = Modifier.weight(1f))
+            FilledIconButton(onClick = { load() }, enabled = !loading) { Icon(Icons.Default.Search, contentDescription = "Search") }
+        }
+        Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             listOf("All", "Borrow", "Give away").forEach { option ->
                 FilterChip(selected = selectedType == option, onClick = { selectedType = option }, label = { Text(option) })
             }
@@ -85,22 +90,15 @@ fun ExploreScreen(modifier: Modifier = Modifier) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             var categoryExpanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(expanded = categoryExpanded, onExpandedChange = { categoryExpanded = it }, modifier = Modifier.weight(1f)) {
-                OutlinedButton(onClick = { categoryExpanded = true }, modifier = Modifier.menuAnchor().fillMaxWidth()) {
-                    Text(selectedCategory, maxLines = 1)
-                }
+                OutlinedButton(onClick = { categoryExpanded = true }, modifier = Modifier.menuAnchor().fillMaxWidth()) { Text(selectedCategory, maxLines = 1) }
                 ExposedDropdownMenu(expanded = categoryExpanded, onDismissRequest = { categoryExpanded = false }) {
                     categories.forEach { category -> DropdownMenuItem(text = { Text(category) }, onClick = { selectedCategory = category; categoryExpanded = false }) }
                 }
             }
-            OutlinedButton(onClick = { load() }, enabled = !loading) { Text("Search") }
-        }
-        OutlinedButton(onClick = {
-            if (DeviceLocation.hasPermission(context)) applyLocation()
-            else locationPermission.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
-        }, modifier = Modifier.fillMaxWidth()) {
-            Icon(Icons.Default.MyLocation, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text(if (sortNearby) "Refresh nearby sorting" else "Find nearby")
+            FilledTonalIconButton(onClick = {
+                if (DeviceLocation.hasPermission(context)) applyLocation()
+                else locationPermission.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION))
+            }) { Icon(Icons.Default.MyLocation, contentDescription = "Find nearby") }
         }
         locationMessage?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         when {
