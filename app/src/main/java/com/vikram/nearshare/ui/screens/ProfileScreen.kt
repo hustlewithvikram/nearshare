@@ -76,16 +76,27 @@ fun ProfileScreen(modifier: Modifier = Modifier, onOpenUpdates: () -> Unit = {},
         modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        OutlinedButton(onClick = onOpenUpdates, modifier = Modifier.fillMaxWidth()) {
-            Icon(Icons.Default.SystemUpdate, contentDescription = null)
-            Text("App updates")
+        Text("Quick access", style = MaterialTheme.typography.titleMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            OutlinedButton(onClick = onOpenRequests, modifier = Modifier.weight(1f)) {
+                Icon(Icons.Default.FavoriteBorder, contentDescription = null)
+                Text("Requests", maxLines = 1)
+            }
+            OutlinedButton(onClick = onOpenMessages, modifier = Modifier.weight(1f)) {
+                Icon(Icons.Default.ChatBubbleOutline, contentDescription = null)
+                Text("Messages", maxLines = 1)
+            }
         }
-        OutlinedButton(onClick = onOpenRequests, modifier = Modifier.fillMaxWidth()) {
-            Icon(Icons.Default.FavoriteBorder, contentDescription = null)
-            Text("My requests")
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            OutlinedButton(onClick = onOpenNotifications, modifier = Modifier.weight(1f)) {
+                Icon(Icons.Default.Notifications, contentDescription = null)
+                Text("Alerts", maxLines = 1)
+            }
+            OutlinedButton(onClick = onOpenUpdates, modifier = Modifier.weight(1f)) {
+                Icon(Icons.Default.SystemUpdate, contentDescription = null)
+                Text("App updates", maxLines = 1)
+            }
         }
-        OutlinedButton(onClick = onOpenMessages, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.ChatBubbleOutline, contentDescription = null); Text("Messages") }
-        OutlinedButton(onClick = onOpenNotifications, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.Notifications, contentDescription = null); Text("Notifications") }
         if (loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             Text("Checking your account…", style = MaterialTheme.typography.bodyMedium)
