@@ -16,6 +16,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
 import com.vikram.nearshare.data.auth.AuthRepository
 import com.vikram.nearshare.data.listings.ListingRepository
 import com.vikram.nearshare.data.location.DeviceLocation
@@ -97,9 +99,17 @@ fun CreateListingScreen(modifier: Modifier = Modifier, onCreated: () -> Unit = {
             placeholder = { Text("e.g. Baner, Pune") }, singleLine = true, modifier = Modifier.fillMaxWidth())
         OutlinedButton(onClick = { imagePicker.launch("image/*") }, modifier = Modifier.fillMaxWidth()) {
             Icon(if (image == null) Icons.Default.AddPhotoAlternate else Icons.Default.Image, contentDescription = null)
-            Text(if (image == null) "Choose item photo (optional)" else "Change selected photo")
+            Text(if (image == null) "Add item photo (optional)" else "Change item photo")
         }
-        if (image != null) Text("Photo selected. Images are limited to 8 MB.", style = MaterialTheme.typography.bodySmall)
+        image?.let { selectedImage ->
+            AsyncImage(
+                model = selectedImage,
+                contentDescription = "Selected item photo preview",
+                modifier = Modifier.fillMaxWidth().height(210.dp),
+                contentScale = ContentScale.Crop
+            )
+            Text("Photo preview · Images are limited to 8 MB.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         errorMessage?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         Button(onClick = {
             scope.launch {
