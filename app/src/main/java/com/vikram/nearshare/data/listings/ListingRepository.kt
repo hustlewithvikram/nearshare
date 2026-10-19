@@ -15,7 +15,7 @@ import java.util.UUID
 data class Listing(
     val id: String, val ownerId: String, val title: String, val description: String,
     val category: String, val listingType: String, val condition: String,
-    val location: String, val imageUrl: String?, val createdAt: String
+    val location: String, val imageUrl: String?, val createdAt: String, val latitude: Double?, val longitude: Double?
 )
 
 class ListingRepository(private val context: Context) {
@@ -30,14 +30,14 @@ class ListingRepository(private val context: Context) {
     }
 
     suspend fun createListing(ownerId: String, token: String, title: String, description: String,
-        category: String, listingType: String, condition: String, location: String, imageUri: Uri?): Listing =
+        category: String, listingType: String, condition: String, location: String, imageUri: Uri?, latitude: Double? = null, longitude: Double? = null): Listing =
         withContext(Dispatchers.IO) {
             val imageUrl = imageUri?.let { uploadImage(ownerId, token, it) }
             val payload = JSONObject().put("owner_id", ownerId).put("title", title.trim())
                 .put("description", description.trim()).put("category", category)
                 .put("listing_type", listingType).put("item_condition", condition)
                 .put("location_text", location.trim()).put("image_url", imageUrl ?: JSONObject.NULL)
-                .put("status", "active")
+                .put("status", "active").put("latitude", latitude ?: JSONObject.NULL).put("longitude", longitude ?: JSONObject.NULL)
             val result = request("/rest/v1/listings?select=*", "POST", payload, token, mapOf("Prefer" to "return=representation"))
             JSONArray(result).optJSONObject(0)?.toListing()
                 ?: throw IOException("Listing was saved, but the server returned no listing.")
@@ -93,6 +93,6 @@ class ListingRepository(private val context: Context) {
     }
     private fun JSONObject.toListing() = Listing(optString("id"), optString("owner_id"), optString("title"),
         optString("description"), optString("category"), optString("listing_type"), optString("item_condition"),
-        optString("location_text"), optString("image_url").takeIf { it.isNotBlank() && it != "null" }, optString("created_at"))
+        optString("location_text"), optString("image_url").takeIf { it.isNotBlank() && it != "null" }, optString("created_at"),\n        if (isNull("latitude")) null else optDouble("latitude"), if (isNull("longitude")) null else optDouble("longitude"))
     private fun encode(value: String) = java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 }

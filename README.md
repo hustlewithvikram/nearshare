@@ -23,7 +23,7 @@ NearShare is a native Android application built with Kotlin, Jetpack Compose and
 - `ui/screens/`: individual screens.
 - `ui/theme/`: Material 3 theme configuration.
 
-The app shell provides Home, Explore, Saved, Profile, App Updates and Create Listing destinations. Phase 2 adds email sign-up/sign-in and editable profiles. Phase 3 adds Supabase-backed listings, image uploads, search and listing-type filters. Saved items, request/exchange flows and messaging remain planned.
+The app shell provides Home, Explore, Saved, Profile, App Updates and Create Listing destinations. Phase 2 adds email sign-up/sign-in and editable profiles. Phase 4 adds Supabase-backed listings, image uploads, search and listing-type filters. Saved items, request/exchange flows and messaging remain planned.
 
 ## Set up the listings database (Phase 3)
 1. Open the Supabase project SQL Editor.
@@ -72,3 +72,4 @@ Google Play generally prefers Android App Bundles (AAB) for new apps. The curren
 
 ## License
 No license has been specified for this repository yet.
+\n\n### Nearby discovery (Phase 4)\nListings can optionally store approximate latitude/longitude when the creator grants location permission. Explore supports category and borrow/give-away filters, and sorts listings with coordinates by distance when the user chooses Find nearby. Listings without coordinates remain discoverable by text and filters. Re-run `supabase/schema.sql` to add the optional coordinate columns to an existing project.\n

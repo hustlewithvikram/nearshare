@@ -1,4 +1,4 @@
--- Run in the Supabase SQL Editor for NearShare Phase 3.
+-- Run in the Supabase SQL Editor for NearShare.\n-- Safe migration for existing installs: add optional coordinates for nearby discovery.\nalter table public.listings add column if not exists latitude double precision;\nalter table public.listings add column if not exists longitude double precision;\nalter table public.listings drop constraint if exists listings_coordinates_pair_check;\nalter table public.listings add constraint listings_coordinates_pair_check check ((latitude is null and longitude is null) or (latitude between -90 and 90 and longitude between -180 and 180));
 create extension if not exists pgcrypto;
 create table if not exists public.listings (
  id uuid primary key default gen_random_uuid(),
