@@ -149,3 +149,13 @@ begin
 end $$;
 drop trigger if exists nearshare_message_notifications on public.listing_messages;
 create trigger nearshare_message_notifications after insert on public.listing_messages for each row execute function public.nearshare_notify_message();
+
+-- Tighten direct RPC access to trigger-only notification functions.
+revoke execute on function public.nearshare_notify_request_change() from public, anon, authenticated;
+revoke execute on function public.nearshare_notify_message() from public, anon, authenticated;
+-- Cover notification/message/report foreign keys used by joins and cleanup.
+create index if not exists app_notifications_actor_id_idx on public.app_notifications(actor_id);
+create index if not exists app_notifications_request_id_idx on public.app_notifications(request_id);
+create index if not exists listing_messages_sender_id_idx on public.listing_messages(sender_id);
+create index if not exists listing_reports_listing_id_idx on public.listing_reports(listing_id);
+create index if not exists listing_reports_reporter_id_idx on public.listing_reports(reporter_id);
