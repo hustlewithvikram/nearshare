@@ -4,10 +4,10 @@
     android:height="108dp"
     android:viewportWidth="245"
     android:viewportHeight="245">
-    <!-- Android's adaptive-icon safe zone is smaller than the full 108dp canvas. -->
+    <!-- Keep the complete mark inside Android's adaptive-icon safe zone. -->
     <group
-        android:scaleX="0.84"
-        android:scaleY="0.84"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
         android:pivotX="122.5"
         android:pivotY="122.5">
         <path
