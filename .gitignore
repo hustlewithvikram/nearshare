@@ -10,3 +10,6 @@ local.properties
 keystore.properties
 *.jks
 *.keystore
+
+# Local signing material and generated GitHub secret values
+.nearshare-signing/
