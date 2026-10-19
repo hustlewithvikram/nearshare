@@ -74,8 +74,6 @@ jobs:
             echo
             echo "Download the APK from the **Artifacts** section at the bottom of this workflow run. GitHub packages uploaded artifacts as a ZIP; the ZIP contains the APK named above."
           } >> "$GITHUB_STEP_SUMMARY"
-          COMMIT_SHORT="${GITHUB_SHA::7}"
-          cp "$APK" "nearshare-playstore-${COMMIT_SHORT}.apk"
 
       - uses: actions/upload-artifact@v4
         with:
