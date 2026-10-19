@@ -1,18 +1,17 @@
 package com.vikram.nearshare.core.navigation
 
 /**
- * Destinations available in the app shell.
- *
- * Keep the main navigation destinations separate from task destinations such as
- * creating a listing, which should not appear as a permanent bottom-nav item.
+ * Main destinations are the four primary areas. Exchange activity is grouped
+ * in Inbox instead of being scattered across separate navigation destinations.
  */
 enum class AppDestination(
     val title: String,
     val showInNavigation: Boolean = true
 ) {
-    HOME("NearShare"),
+    HOME("Home"),
     EXPLORE("Explore"),
-    SAVED("Saved"),
+    INBOX("Inbox"),
+    SAVED("Saved", showInNavigation = false),
     PROFILE("Profile"),
     UPDATES("App updates", showInNavigation = false),
     REQUESTS("My requests", showInNavigation = false),
@@ -22,6 +21,6 @@ enum class AppDestination(
 
     companion object {
         val mainDestinations: List<AppDestination>
-            get() = entries.filter(AppDestination::showInNavigation)
+            get() = listOf(HOME, EXPLORE, INBOX, PROFILE)
     }
 }

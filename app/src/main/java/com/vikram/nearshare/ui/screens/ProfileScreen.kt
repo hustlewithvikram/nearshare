@@ -1,6 +1,7 @@
 package com.vikram.nearshare.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,25 +10,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.SystemUpdate
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,15 +44,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.vikram.nearshare.data.auth.AuthRepository
 import com.vikram.nearshare.data.auth.AuthUser
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, onOpenUpdates: () -> Unit = {}, onOpenRequests: () -> Unit = {}, onOpenMessages: () -> Unit = {}, onOpenNotifications: () -> Unit = {}) {
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    onOpenUpdates: () -> Unit = {},
+    onOpenRequests: () -> Unit = {},
+    onOpenMessages: () -> Unit = {},
+    onOpenNotifications: () -> Unit = {}
+) {
     val context = LocalContext.current
     val repository = remember(context) { AuthRepository(context.applicationContext) }
     val scope = rememberCoroutineScope()
@@ -73,98 +87,105 @@ fun ProfileScreen(modifier: Modifier = Modifier, onOpenUpdates: () -> Unit = {},
     }
 
     Column(
-        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-        Text("Quick access", style = MaterialTheme.typography.titleMedium)
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            OutlinedButton(onClick = onOpenRequests, modifier = Modifier.weight(1f)) {
-                Icon(Icons.Default.FavoriteBorder, contentDescription = null)
-                Text("Requests", maxLines = 1)
-            }
-            OutlinedButton(onClick = onOpenMessages, modifier = Modifier.weight(1f)) {
-                Icon(Icons.Default.ChatBubbleOutline, contentDescription = null)
-                Text("Messages", maxLines = 1)
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            OutlinedButton(onClick = onOpenNotifications, modifier = Modifier.weight(1f)) {
-                Icon(Icons.Default.Notifications, contentDescription = null)
-                Text("Alerts", maxLines = 1)
-            }
-            OutlinedButton(onClick = onOpenUpdates, modifier = Modifier.weight(1f)) {
-                Icon(Icons.Default.SystemUpdate, contentDescription = null)
-                Text("App updates", maxLines = 1)
-            }
-        }
         if (loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-            Text("Checking your account…", style = MaterialTheme.typography.bodyMedium)
+            Box(Modifier.fillMaxWidth().padding(vertical = 48.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
             return@Column
         }
 
         if (user != null) {
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-            Text("Your profile", style = MaterialTheme.typography.headlineMedium)
-            Text(
-                "Manage the details other NearShare members will see.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Row(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Account details", style = MaterialTheme.typography.titleMedium)
-                    HorizontalDivider()
-                    OutlinedTextField(
-                        value = displayName,
-                        onValueChange = { displayName = it; message = null },
-                        label = { Text("Display name") },
-                        leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    OutlinedTextField(
-                        value = user!!.email,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Email") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Button(
-                        onClick = {
-                            scope.launch {
-                                busy = true
-                                message = null
-                                try {
-                                    user = repository.updateDisplayName(displayName)
-                                    displayName = user?.displayName.orEmpty()
-                                    message = "Profile saved."
-                                    messageIsError = false
-                                } catch (error: Exception) {
-                                    message = error.message ?: "Could not save your profile."
-                                    messageIsError = true
-                                } finally {
-                                    busy = false
-                                }
-                            }
-                        },
-                        enabled = !busy && displayName.isNotBlank(),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        if (busy) CircularProgressIndicator()
-                        else Text("Save changes")
+                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)) {
+                        Icon(Icons.Default.AccountCircle, contentDescription = null, modifier = Modifier.padding(10.dp).height(44.dp), tint = MaterialTheme.colorScheme.primary)
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(displayName.ifBlank { "NearShare member" }, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Text(user!!.email, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Text("Community member", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
                     }
                 }
             }
-            StatusMessage(message, messageIsError)
+
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Account", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+                    Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedTextField(
+                            value = displayName,
+                            onValueChange = { displayName = it; message = null },
+                            label = { Text("Display name") },
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(value = user!!.email, onValueChange = {}, readOnly = true, label = { Text("Email address") }, modifier = Modifier.fillMaxWidth())
+                        Button(
+                            onClick = {
+                                scope.launch {
+                                    busy = true; message = null
+                                    try {
+                                        user = repository.updateDisplayName(displayName)
+                                        displayName = user?.displayName.orEmpty()
+                                        message = "Profile saved."
+                                        messageIsError = false
+                                    } catch (error: Exception) {
+                                        message = error.message ?: "Could not save your profile."
+                                        messageIsError = true
+                                    } finally { busy = false }
+                                }
+                            },
+                            enabled = !busy && displayName.isNotBlank(),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            if (busy) CircularProgressIndicator() else Text("Save profile")
+                        }
+                    }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("Your NearShare", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                        ProfileAction(Icons.Default.FavoriteBorder, "Requests and exchanges", "Track hand-offs and status", onOpenRequests)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        ProfileAction(Icons.Default.ChatBubbleOutline, "Messages", "Continue an accepted exchange", onOpenMessages)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        ProfileAction(Icons.Default.Notifications, "Notifications", "Updates about your activity", onOpenNotifications)
+                    }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("App", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                        ProfileAction(Icons.Default.SystemUpdate, "App updates", "Check for the latest build", onOpenUpdates)
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        Row(Modifier.fillMaxWidth().padding(vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Column(Modifier.weight(1f).padding(start = 12.dp)) {
+                                Text("Account security", style = MaterialTheme.typography.bodyLarge)
+                                Text("Authentication secured by Supabase", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
+                    }
+                }
+            }
+
             OutlinedButton(
                 onClick = {
                     scope.launch {
@@ -178,128 +199,88 @@ fun ProfileScreen(modifier: Modifier = Modifier, onOpenUpdates: () -> Unit = {},
                         } catch (error: Exception) {
                             message = error.message ?: "Could not sign out."
                             messageIsError = true
-                        } finally {
-                            busy = false
-                        }
+                        } finally { busy = false }
                     }
                 },
                 enabled = !busy,
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Sign out") }
         } else {
-            Icon(
-                imageVector = Icons.Default.Lock,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-            Text(
-                if (isSignUp) "Create your account" else "Sign in to NearShare",
-                style = MaterialTheme.typography.headlineMedium
-            )
-            Text(
-                if (isSignUp) "Join your neighborhood and keep your profile in sync."
-                else "Sign in to manage your profile and access your account.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            if (isSignUp) {
-                OutlinedTextField(
-                    value = displayName,
-                    onValueChange = { displayName = it; message = null },
-                    label = { Text("Display name") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Text(if (isSignUp) "Join your neighborhood" else "Welcome to NearShare", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                    Text(
+                        if (isSignUp) "Create an account to request items and coordinate exchanges."
+                        else "Sign in to manage your profile and keep your exchanges together.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
             }
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it; message = null },
-                label = { Text("Email address") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it; message = null },
-                label = { Text("Password") },
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (isSignUp) {
+                OutlinedTextField(displayName, { displayName = it; message = null }, label = { Text("Display name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            }
+            OutlinedTextField(email, { email = it; message = null }, label = { Text("Email address") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(password, { password = it; message = null }, label = { Text("Password") }, visualTransformation = PasswordVisualTransformation(), singleLine = true, modifier = Modifier.fillMaxWidth())
             Button(
                 onClick = {
                     scope.launch {
-                        busy = true
-                        message = null
+                        busy = true; message = null
                         try {
-                            val result = if (isSignUp) {
-                                repository.signUp(email, password, displayName)
-                            } else {
-                                repository.signIn(email, password)
-                            }
+                            val result = if (isSignUp) repository.signUp(email, password, displayName) else repository.signIn(email, password)
                             if (result != null) {
-                                user = result
-                                displayName = result.displayName
-                                email = result.email
-                                password = ""
-                                message = "You are signed in."
-                                messageIsError = false
+                                user = result; displayName = result.displayName; email = result.email; password = ""
+                                message = "You are signed in."; messageIsError = false
                             } else {
                                 message = "Account created. Check your email to confirm your account, then sign in."
-                                messageIsError = false
-                                isSignUp = false
-                                password = ""
+                                messageIsError = false; isSignUp = false; password = ""
                             }
                         } catch (error: Exception) {
                             message = error.message ?: "Authentication failed. Please try again."
                             messageIsError = true
-                        } finally {
-                            busy = false
-                        }
+                        } finally { busy = false }
                     }
                 },
-                enabled = !busy && email.contains("@") && password.length >= 6 &&
-                    (!isSignUp || displayName.isNotBlank()),
+                enabled = !busy && email.contains("@") && password.length >= 6 && (!isSignUp || displayName.isNotBlank()),
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                if (busy) CircularProgressIndicator()
-                else Text(if (isSignUp) "Create account" else "Sign in")
+            ) { if (busy) CircularProgressIndicator() else Text(if (isSignUp) "Create account" else "Sign in") }
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
+                Text(if (isSignUp) "Already have an account?" else "New to NearShare?", style = MaterialTheme.typography.bodyMedium)
+                TextButton(onClick = { isSignUp = !isSignUp; message = null }) { Text(if (isSignUp) "Sign in" else "Create account") }
             }
-            StatusMessage(message, messageIsError)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    if (isSignUp) "Already have an account?" else "New to NearShare?",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                TextButton(onClick = {
-                    isSignUp = !isSignUp
-                    message = null
-                }) {
-                    Text(if (isSignUp) "Sign in" else "Create account")
-                }
-            }
-            Spacer(Modifier.height(4.dp))
-            Text(
-                "Your account is managed securely by Supabase. Never share your password with anyone.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Text("Your account is managed securely by Supabase.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        message?.let {
+            Text(it, color = if (messageIsError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
 
 @Composable
-private fun StatusMessage(message: String?, isError: Boolean) {
-    if (message != null) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodyMedium,
-            color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-        )
+private fun ProfileAction(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    androidx.compose.foundation.clickable(onClick = onClick)
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Surface(shape = RoundedCornerShape(12.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
+            Icon(icon, contentDescription = null, modifier = Modifier.padding(10.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+        }
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Icon(Icons.Default.ArrowForwardIos, contentDescription = null, modifier = Modifier.padding(end = 4.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
