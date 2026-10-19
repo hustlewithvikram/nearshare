@@ -4,10 +4,10 @@
     android:height="108dp"
     android:viewportWidth="245"
     android:viewportHeight="245">
-    <!-- Keep the complete mark inside Android's adaptive-icon safe zone. -->
+    <!-- Scale the mark down another 20% to give the adaptive icon more breathing room. -->
     <group
-        android:scaleX="0.8"
-        android:scaleY="0.8"
+        android:scaleX="0.64"
+        android:scaleY="0.64"
         android:pivotX="122.5"
         android:pivotY="122.5">
         <path
