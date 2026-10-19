@@ -55,6 +55,8 @@ jobs:
         run: sh ./gradlew --no-daemon --stacktrace assembleDebug
 
       - name: Verify APK signature and rename
+        env:
+          COMMIT_SHORT: ${GITHUB_SHA::7}
         run: |
           set -euo pipefail
           APK="app/build/outputs/apk/debug/app-debug.apk"
@@ -62,12 +64,12 @@ jobs:
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -mindepth 2 -maxdepth 2 -name apksigner -type f | sort -V | tail -n 1)"
           test -n "$APKSIGNER"
           "$APKSIGNER" verify --verbose --print-certs "$APK"
-          cp "$APK" nearshare-debug.apk
+          cp "$APK" "nearshare-debug-${COMMIT_SHORT}.apk"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: nearshare-debug-apk
-          path: nearshare-debug.apk
+          name: nearshare-debug-${{ github.sha }}
+          path: nearshare-debug-*.apk
           if-no-files-found: error
           retention-days: 14
 
