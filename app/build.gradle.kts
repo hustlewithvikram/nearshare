@@ -4,6 +4,15 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+val sharedKeystorePath = providers.environmentVariable("ANDROID_KEYSTORE_PATH").orNull
+val sharedKeystorePassword = providers.environmentVariable("ANDROID_KEYSTORE_PASSWORD").orNull
+val sharedKeyAlias = providers.environmentVariable("ANDROID_KEY_ALIAS").orNull
+val sharedKeyPassword = providers.environmentVariable("ANDROID_KEY_PASSWORD").orNull
+val hasSharedSigning = !sharedKeystorePath.isNullOrBlank() &&
+    !sharedKeystorePassword.isNullOrBlank() &&
+    !sharedKeyAlias.isNullOrBlank() &&
+    !sharedKeyPassword.isNullOrBlank()
+
 android {
     namespace = "com.vikram.nearshare"
     compileSdk = 36
@@ -18,13 +27,31 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
 
+    signingConfigs {
+        if (hasSharedSigning) {
+            create("shared") {
+                storeFile = file(sharedKeystorePath!!)
+                storePassword = sharedKeystorePassword
+                keyAlias = sharedKeyAlias
+                keyPassword = sharedKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
+            // Keep one application ID across debug and release so the same signed app
+            // can be upgraded without uninstalling it first.
+            if (hasSharedSigning) {
+                signingConfig = signingConfigs.getByName("shared")
+            }
             versionNameSuffix = "-debug"
         }
         release {
             isMinifyEnabled = false
+            if (hasSharedSigning) {
+                signingConfig = signingConfigs.getByName("shared")
+            }
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
