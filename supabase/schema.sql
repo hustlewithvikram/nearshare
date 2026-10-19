@@ -1,9 +1,4 @@
 -- Run in the Supabase SQL Editor for NearShare.
--- Safe migration for existing installs: add optional coordinates for nearby discovery.
-alter table public.listings add column if not exists latitude double precision;
-alter table public.listings add column if not exists longitude double precision;
-alter table public.listings drop constraint if exists listings_coordinates_pair_check;
-alter table public.listings add constraint listings_coordinates_pair_check check ((latitude is null and longitude is null) or (latitude between -90 and 90 and longitude between -180 and 180));
 create extension if not exists pgcrypto;
 create table if not exists public.listings (
  id uuid primary key default gen_random_uuid(),
@@ -19,6 +14,11 @@ create table if not exists public.listings (
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
 );
+-- Safe migration for existing installs: add optional coordinates for nearby discovery.
+alter table public.listings add column if not exists latitude double precision;
+alter table public.listings add column if not exists longitude double precision;
+alter table public.listings drop constraint if exists listings_coordinates_pair_check;
+alter table public.listings add constraint listings_coordinates_pair_check check ((latitude is null and longitude is null) or (latitude between -90 and 90 and longitude between -180 and 180));
 -- Safe migration for existing installs: add optional coordinates for nearby discovery.
 alter table public.listings add column if not exists latitude double precision;
 alter table public.listings add column if not exists longitude double precision;

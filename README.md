@@ -23,11 +23,11 @@ NearShare is a native Android application built with Kotlin, Jetpack Compose and
 - `ui/screens/`: individual screens.
 - `ui/theme/`: Material 3 theme configuration.
 
-The app shell provides Home, Explore, Saved, Profile, App Updates and Create Listing destinations. Phase 2 adds email sign-up/sign-in and editable profiles. Phase 4 adds Supabase-backed listings, image uploads, search and listing-type filters. Phase 5 adds item requests and request status management.
+The app shell provides Home, Explore, Saved, Profile, App Updates and Create Listing destinations. Phase 2 adds email sign-up/sign-in and editable profiles. Phase 4 adds Supabase-backed listings, image uploads, search and listing-type filters. Phase 5 adds item requests and request status management. Phase 6 adds listing reports for member safety. Phase 7 hardens setup and database migration reliability.
 
 ## Set up the listings database (Phase 3)
 1. Open the Supabase project SQL Editor.
-2. Run [`supabase/schema.sql`](supabase/schema.sql) to create the listings table, row-level security policies, and public image bucket policies.
+2. Run [`supabase/schema.sql`](supabase/schema.sql) in the Supabase SQL Editor. It creates the listings and request tables, applies row-level security policies, and configures the listing-image bucket. The script is intended to be re-runnable for schema updates.
 3. The `nearshare-listing-images` bucket is public for reading listing photos; uploads are restricted to the authenticated user’s own folder.
 
 ## Configure Supabase
