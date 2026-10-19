@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/nearshare-banner.svg" alt="NearShare" width="100%" />
+  <img src="docs/nearshare-banner.svg" alt="NearShare app banner" width="100%" />
   <h1>NearShare</h1>
   <p><strong>Share more. Need less.</strong></p>
   <p>A neighborhood sharing app for borrowing, lending, and giving away useful items nearby.</p>
@@ -23,7 +23,7 @@ NearShare is an Android application built natively with Kotlin and Jetpack Compo
 
 Build a debug APK:
 ```bash
-./gradlew assembleDebug
+sh ./gradlew assembleDebug
 ```
 Output: `app/build/outputs/apk/debug/app-debug.apk`.
 
