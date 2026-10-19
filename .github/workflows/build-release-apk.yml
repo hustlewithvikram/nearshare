@@ -62,13 +62,25 @@ jobs:
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -mindepth 2 -maxdepth 2 -name apksigner -type f | sort -V | tail -n 1)"
           test -n "$APKSIGNER"
           "$APKSIGNER" verify --verbose --print-certs "$APK"
+          APK_NAME="nearshare-release-${GITHUB_SHA}.apk"
+          cp "$APK" "$APK_NAME"
+          echo "APK_NAME=$APK_NAME" >> "$GITHUB_ENV"
+          {
+            echo "## APK build ready"
+            echo
+            echo "- **APK:** `$APK_NAME`"
+            echo "- **Commit:** `$GITHUB_SHA`"
+            echo "- **Signature:** verified successfully"
+            echo
+            echo "Download the APK from the **Artifacts** section at the bottom of this workflow run. GitHub packages uploaded artifacts as a ZIP; the ZIP contains the APK named above."
+          } >> "$GITHUB_STEP_SUMMARY"
           COMMIT_SHORT="${GITHUB_SHA::7}"
           cp "$APK" "nearshare-release-${COMMIT_SHORT}.apk"
 
       - uses: actions/upload-artifact@v4
         with:
           name: nearshare-release-${{ github.sha }}
-          path: nearshare-release-*.apk
+          path: ${{ env.APK_NAME }}
           if-no-files-found: error
           retention-days: 14
 
