@@ -55,10 +55,9 @@ jobs:
         run: sh ./gradlew --no-daemon --stacktrace assembleDebug
 
       - name: Verify APK signature and rename
-        env:
-          COMMIT_SHORT: ${GITHUB_SHA::7}
         run: |
           set -euo pipefail
+          COMMIT_SHORT="${GITHUB_SHA::7}"
           APK="app/build/outputs/apk/debug/app-debug.apk"
           test -f "$APK"
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -mindepth 2 -maxdepth 2 -name apksigner -type f | sort -V | tail -n 1)"
