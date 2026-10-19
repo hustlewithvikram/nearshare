@@ -158,14 +158,10 @@ fun ProfileScreen(
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("Your NearShare", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                Text("Your activity", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 Card(Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
                     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-                        ProfileAction(Icons.Default.FavoriteBorder, "Requests and exchanges", "Track hand-offs and status", onOpenRequests)
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        ProfileAction(Icons.Default.ChatBubbleOutline, "Messages", "Continue an accepted exchange", onOpenMessages)
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        ProfileAction(Icons.Default.Notifications, "Notifications", "Updates about your activity", onOpenNotifications)
+                        ProfileAction(Icons.Default.ChatBubbleOutline, "Inbox", "Requests, conversations and activity", onOpenRequests)
                     }
                 }
             }
