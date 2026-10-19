@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.SystemUpdate
+import androidx.compose.material.icons.filled.ChatBubbleOutline
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -43,7 +45,7 @@ import com.vikram.nearshare.data.auth.AuthUser
 import kotlinx.coroutines.launch
 
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier, onOpenUpdates: () -> Unit = {}, onOpenRequests: () -> Unit = {}) {
+fun ProfileScreen(modifier: Modifier = Modifier, onOpenUpdates: () -> Unit = {}, onOpenRequests: () -> Unit = {}, onOpenMessages: () -> Unit = {}, onOpenNotifications: () -> Unit = {}) {
     val context = LocalContext.current
     val repository = remember(context) { AuthRepository(context.applicationContext) }
     val scope = rememberCoroutineScope()
@@ -82,6 +84,8 @@ fun ProfileScreen(modifier: Modifier = Modifier, onOpenUpdates: () -> Unit = {},
             Icon(Icons.Default.FavoriteBorder, contentDescription = null)
             Text("My requests")
         }
+        OutlinedButton(onClick = onOpenMessages, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.ChatBubbleOutline, contentDescription = null); Text("Messages") }
+        OutlinedButton(onClick = onOpenNotifications, modifier = Modifier.fillMaxWidth()) { Icon(Icons.Default.Notifications, contentDescription = null); Text("Notifications") }
         if (loading) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
             Text("Checking your account…", style = MaterialTheme.typography.bodyMedium)
