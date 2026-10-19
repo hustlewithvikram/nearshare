@@ -54,6 +54,8 @@ jobs:
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          NEARSHARE_VERSION_CODE: ${{ github.run_number }}
+          NEARSHARE_VERSION_NAME: 1.0.${{ github.run_number }}-debug
         run: sh ./gradlew --no-daemon --stacktrace assembleDebug
 
       - name: Verify APK signature and prepare release files
@@ -77,6 +79,8 @@ jobs:
             echo "- **Release asset:** `nearshare-debug.apk`"
             echo "- **Commit:** `$GITHUB_SHA`"
             echo "- **Signature:** verified successfully"
+            echo "- **Version name:** 1.0.${GITHUB_RUN_NUMBER}-debug"
+            echo "- **Version code:** ${GITHUB_RUN_NUMBER}"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload commit-specific workflow artifact
@@ -99,10 +103,11 @@ jobs:
           if gh release view "$RELEASE_TAG" --repo "$REPOSITORY" >/dev/null 2>&1; then
             echo "Found existing latest debug release; replacing its APK asset."
           else
-            gh release create "$RELEASE_TAG"               --repo "$REPOSITORY"               --title "$RELEASE_TITLE"               --notes "Latest signed debug build of NearShare. This prerelease is updated automatically on each push to master."               --prerelease
+            gh release create "$RELEASE_TAG"               --repo "$REPOSITORY"               --title "$RELEASE_TITLE"               --notes "Latest signed debug build of NearShare.\n\nversionCode: ${GITHUB_RUN_NUMBER}\nversionName: 1.0.${GITHUB_RUN_NUMBER}-debug"               --prerelease
           fi
 
-          gh release upload "$RELEASE_TAG" nearshare-debug.apk             --repo "$REPOSITORY"             --clobber
+          gh release edit "$RELEASE_TAG" --repo "$REPOSITORY" --notes "Latest signed debug build of NearShare.\n\nversionCode: ${GITHUB_RUN_NUMBER}\nversionName: 1.0.${GITHUB_RUN_NUMBER}-debug"
+          gh release upload "$RELEASE_TAG" nearshare-debug.apk --repo "$REPOSITORY" --clobber
 
           {
             echo

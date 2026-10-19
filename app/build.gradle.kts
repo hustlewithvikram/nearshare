@@ -12,6 +12,8 @@ val hasSharedSigning = !sharedKeystorePath.isNullOrBlank() &&
     !sharedKeystorePassword.isNullOrBlank() &&
     !sharedKeyAlias.isNullOrBlank() &&
     !sharedKeyPassword.isNullOrBlank()
+val nearShareVersionCode = providers.environmentVariable("NEARSHARE_VERSION_CODE").orNull?.toIntOrNull() ?: 1
+val nearShareVersionName = providers.environmentVariable("NEARSHARE_VERSION_NAME").orNull ?: "1.0.0"
 val supabaseUrl = providers.gradleProperty("SUPABASE_URL")
     .orElse(providers.environmentVariable("SUPABASE_URL")).getOrElse("")
 val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY")
@@ -27,8 +29,8 @@ android {
         applicationId = "com.vikram.nearshare"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = nearShareVersionCode
+        versionName = nearShareVersionName
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         buildConfigField("String", "SUPABASE_URL", supabaseUrl.asBuildConfigLiteral())
