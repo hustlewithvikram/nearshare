@@ -11,17 +11,32 @@ NearShare is a native Android application built with Kotlin, Jetpack Compose and
 ## Tech stack
 - Kotlin and Jetpack Compose
 - Material 3
+- Supabase Auth for email/password accounts
+- Encrypted Android preferences for locally persisted auth tokens
 - Gradle Kotlin DSL
 - Android application ID: `com.vikram.nearshare`
 
 ## Architecture
-The app is being built incrementally with a clear separation between:
 - `core/`: shared app-level concepts such as navigation destinations.
-- `ui/components/`: reusable UI components such as empty states.
-- `ui/screens/`: individual screens, kept separate from the app shell.
-- `ui/theme/`: Material 3 color and theme configuration.
+- `data/auth/`: Supabase Auth API and session persistence.
+- `ui/components/`: reusable UI components.
+- `ui/screens/`: individual screens.
+- `ui/theme/`: Material 3 theme configuration.
 
-The app shell currently provides Home, Explore, Saved, Profile and Create Listing destinations. Listing data, accounts, persistence, location discovery and messaging are not wired up yet; these will be added in later phases rather than simulated with fake data.
+The app shell provides Home, Explore, Saved, Profile and Create Listing destinations. Phase 2 adds working email sign-up/sign-in, session restoration/refresh, profile display-name editing, and sign-out. Listings, location discovery, saved items and messaging are still not wired up.
+
+## Configure Supabase
+1. Create or open a Supabase project.
+2. In **Project Settings → API**, copy the Project URL and the **publishable/anon key**. Never put a service-role key in the app.
+3. For local builds, add these to your user-level `~/.gradle/gradle.properties` (or the project's untracked `gradle.properties`):
+   ```properties
+   SUPABASE_URL=https://YOUR_PROJECT_ID.supabase.co
+   SUPABASE_ANON_KEY=YOUR_SUPABASE_PUBLISHABLE_OR_ANON_KEY
+   ```
+4. In Supabase Authentication settings, configure email confirmation and your allowed sign-in policies. If email confirmation is enabled, a new account may need to confirm the email before signing in.
+5. For GitHub Actions builds, add repository secrets named `SUPABASE_URL` and `SUPABASE_ANON_KEY`, then ensure the build workflow passes them to Gradle as environment variables. Without them, the app builds but authentication shows a setup message.
+
+The client uses only the public anon/publishable key. Apply strict authorization policies to any future database tables and never ship a service-role key.
 
 ## Build locally
 1. Install Android Studio and JDK 17.
@@ -31,11 +46,11 @@ The app shell currently provides Home, Explore, Saved, Profile and Create Listin
 Build a debug APK:
 ```bash
 sh ./gradlew assembleDebug
-```
+``
 Output: `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## GitHub Actions
-- **Build Debug APK** runs on pushes, publishes the latest signed debug APK in the [latest debug prerelease](https://github.com/hustlewithvikram/nearshare/releases/tag/latest-debug), and uploads a commit-specific artifact.
+- **Build Debug APK** runs on pushes, publishes the latest signed debug prerelease, and uploads a commit-specific artifact.
 - **Build Release APK** can be started manually.
 - **Build Play Store APK** can be started manually.
 

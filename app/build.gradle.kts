@@ -12,6 +12,12 @@ val hasSharedSigning = !sharedKeystorePath.isNullOrBlank() &&
     !sharedKeystorePassword.isNullOrBlank() &&
     !sharedKeyAlias.isNullOrBlank() &&
     !sharedKeyPassword.isNullOrBlank()
+val supabaseUrl = providers.gradleProperty("SUPABASE_URL")
+    .orElse(providers.environmentVariable("SUPABASE_URL")).getOrElse("")
+val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY")
+    .orElse(providers.environmentVariable("SUPABASE_ANON_KEY")).getOrElse("")
+fun String.asBuildConfigLiteral(): String =
+    "\"" + replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 android {
     namespace = "com.vikram.nearshare"
@@ -25,6 +31,8 @@ android {
         versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        buildConfigField("String", "SUPABASE_URL", supabaseUrl.asBuildConfigLiteral())
+        buildConfigField("String", "SUPABASE_ANON_KEY", supabaseAnonKey.asBuildConfigLiteral())
     }
 
     signingConfigs {
@@ -40,18 +48,12 @@ android {
 
     buildTypes {
         debug {
-            // Keep one application ID across debug and release so the same signed app
-            // can be upgraded without uninstalling it first.
-            if (hasSharedSigning) {
-                signingConfig = signingConfigs.getByName("shared")
-            }
+            if (hasSharedSigning) signingConfig = signingConfigs.getByName("shared")
             versionNameSuffix = "-debug"
         }
         release {
             isMinifyEnabled = false
-            if (hasSharedSigning) {
-                signingConfig = signingConfigs.getByName("shared")
-            }
+            if (hasSharedSigning) signingConfig = signingConfigs.getByName("shared")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -77,6 +79,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     testImplementation(libs.junit)
