@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +26,7 @@ fun EmptyState(
     title: String,
     description: String,
     modifier: Modifier = Modifier,
-    icon: ImageVector = Icons.Outlined.Inventory2,
+    icon: ImageVector = Icons.Default.FavoriteBorder,
     actionLabel: String? = null,
     onAction: (() -> Unit)? = null
 ) {

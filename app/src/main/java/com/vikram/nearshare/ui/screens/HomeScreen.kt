@@ -2,24 +2,26 @@ package com.vikram.nearshare.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.Handshake
-import androidx.compose.material.icons.outlined.Recycling
+import androidx.compose.material.icons.filled.Explore
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -68,25 +70,34 @@ fun HomeScreen(
         FeatureCard(
             title = "Find things nearby",
             description = "Discover useful items shared by people in your community.",
-            icon = Icons.Outlined.Explore
+            icon = Icons.Default.Explore
         )
         FeatureCard(
             title = "Borrow instead of buying",
             description = "Get occasional-use items when you need them, without owning everything.",
-            icon = Icons.Outlined.Handshake
+            icon = Icons.Default.FavoriteBorder
         )
         FeatureCard(
             title = "Give useful things another life",
             description = "Pass along items you no longer need to someone who does.",
-            icon = Icons.Outlined.Recycling
+            icon = Icons.Default.FavoriteBorder
         )
 
         EmptyState(
-            title = "Your neighborhood is waiting",
-            description = "Listings will appear here as people start sharing. You can help get the community started.",
-            actionLabel = "Explore nearby",
-            onAction = onExplore
+            title = "Be the first to share",
+            description = "There are no listings yet. Add something useful and help get your community started.",
+            actionLabel = "Share an item",
+            onAction = onCreateListing
         )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(onClick = onExplore) {
+                Text("Explore nearby")
+            }
+        }
     }
 }
 
@@ -100,12 +111,13 @@ private fun FeatureCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        androidx.compose.foundation.layout.Row(
+        Row(
             modifier = Modifier.padding(18.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp)
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(
                 shape = RoundedCornerShape(14.dp),

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,8 +26,8 @@ fun ExploreScreen(modifier: Modifier = Modifier) {
         Text("Explore your community", style = MaterialTheme.typography.headlineSmall)
         EmptyState(
             title = "No listings to show yet",
-            description = "Nearby listings, search and category filters will be added when the listing and discovery features are implemented.",
-            icon = Icons.Outlined.Explore
+            description = "Nearby listings, search and category filters will be added when discovery is implemented.",
+            icon = Icons.Default.Explore
         )
     }
 }
