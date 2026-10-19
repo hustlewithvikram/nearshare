@@ -57,7 +57,7 @@ class AuthRepository(context: Context) {
         withContext(Dispatchers.IO) {
             ensureConfigured()
             val response = request(
-                path = "/auth/v1/signup",
+                path = "/auth/v1/signup?redirect_to=${java.net.URLEncoder.encode(baseUrl, "UTF-8")}",
                 method = "POST",
                 body = JSONObject()
                     .put("email", email.trim())
