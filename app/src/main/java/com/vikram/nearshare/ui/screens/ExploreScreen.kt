@@ -24,6 +24,7 @@ import com.vikram.nearshare.data.location.DeviceLocation
 import kotlinx.coroutines.launch
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
