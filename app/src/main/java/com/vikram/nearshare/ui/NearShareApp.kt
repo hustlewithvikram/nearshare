@@ -1,5 +1,6 @@
 package com.vikram.nearshare.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -38,8 +39,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.vikram.nearshare.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,10 +51,23 @@ fun NearShareApp() {
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                Column {
-                    Text("NearShare", fontWeight = FontWeight.Bold)
-                    Text("Share more. Need less.", style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.nearshare_icon),
+                        contentDescription = null,
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Column {
+                        Text("NearShare", fontWeight = FontWeight.Bold)
+                        Text(
+                            "Share more. Need less.",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             })
         },
