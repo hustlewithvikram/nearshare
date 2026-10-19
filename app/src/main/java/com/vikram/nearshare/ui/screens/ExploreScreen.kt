@@ -20,6 +20,7 @@ import android.content.pm.PackageManager
 import coil.compose.AsyncImage
 import com.vikram.nearshare.data.listings.Listing
 import com.vikram.nearshare.data.listings.ListingRepository
+import com.vikram.nearshare.data.auth.AuthRepository
 import com.vikram.nearshare.data.location.DeviceLocation
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -29,6 +30,7 @@ import java.util.Locale
 fun ExploreScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val repository = remember(context) { ListingRepository(context.applicationContext) }
+    val auth = remember(context) { AuthRepository(context.applicationContext) }
     val scope = rememberCoroutineScope()
     var listings by remember { mutableStateOf<List<Listing>>(emptyList()) }
     var search by remember { mutableStateOf("") }
@@ -119,6 +121,19 @@ fun ExploreScreen(modifier: Modifier = Modifier) {
                             Text("${listing.listingType} · ${listing.category} · ${listing.condition}",
                                 style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
                             Text(listing.description, style = MaterialTheme.typography.bodyMedium)
+                            if (auth.currentUserId() != null && auth.currentUserId() != listing.ownerId) {
+                                var requestDialog by remember(listing.id) { mutableStateOf(false) }
+                                OutlinedButton(onClick = { requestDialog = true }, modifier = Modifier.fillMaxWidth()) { Text("Request item") }
+                                if (requestDialog) {
+                                    var message by remember(listing.id) { mutableStateOf("Hi, is this item still available?") }
+                                    var requestError by remember(listing.id) { mutableStateOf<String?>(null) }
+                                    var sending by remember(listing.id) { mutableStateOf(false) }
+                                    AlertDialog(onDismissRequest = { if (!sending) requestDialog = false }, title = { Text("Request item") },
+                                        text = { Column { OutlinedTextField(value = message, onValueChange = { message = it.take(500) }, label = { Text("Message") }); requestError?.let { Text(it, color = MaterialTheme.colorScheme.error) } } },
+                                        confirmButton = { TextButton(onClick = { scope.launch { sending = true; try { repository.requestListing(listing.id, message, auth.accessToken() ?: error("Sign in again.")); requestDialog = false } catch (e: Exception) { requestError = e.message ?: "Could not send request." } finally { sending = false } } }, enabled = !sending) { Text(if (sending) "Sending…" else "Send request") } },
+                                        dismissButton = { TextButton(onClick = { requestDialog = false }, enabled = !sending) { Text("Cancel") } })
+                                }
+                            }
                             Text(buildString {
                                 append(listing.location)
                                 if (sortNearby) append(if (distance != null) " · ${String.format(Locale.getDefault(), "%.1f", distance)} km away" else " · distance unavailable")

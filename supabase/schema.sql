@@ -1,4 +1,9 @@
--- Run in the Supabase SQL Editor for NearShare.\n-- Safe migration for existing installs: add optional coordinates for nearby discovery.\nalter table public.listings add column if not exists latitude double precision;\nalter table public.listings add column if not exists longitude double precision;\nalter table public.listings drop constraint if exists listings_coordinates_pair_check;\nalter table public.listings add constraint listings_coordinates_pair_check check ((latitude is null and longitude is null) or (latitude between -90 and 90 and longitude between -180 and 180));
+-- Run in the Supabase SQL Editor for NearShare.
+-- Safe migration for existing installs: add optional coordinates for nearby discovery.
+alter table public.listings add column if not exists latitude double precision;
+alter table public.listings add column if not exists longitude double precision;
+alter table public.listings drop constraint if exists listings_coordinates_pair_check;
+alter table public.listings add constraint listings_coordinates_pair_check check ((latitude is null and longitude is null) or (latitude between -90 and 90 and longitude between -180 and 180));
 create extension if not exists pgcrypto;
 create table if not exists public.listings (
  id uuid primary key default gen_random_uuid(),
@@ -19,6 +24,27 @@ alter table public.listings add column if not exists latitude double precision;
 alter table public.listings add column if not exists longitude double precision;
 alter table public.listings drop constraint if exists listings_coordinates_pair_check;
 alter table public.listings add constraint listings_coordinates_pair_check check ((latitude is null and longitude is null) or (latitude between -90 and 90 and longitude between -180 and 180));
+create table if not exists public.listing_requests (
+ id uuid primary key default gen_random_uuid(),
+ listing_id uuid not null references public.listings(id) on delete cascade,
+ requester_id uuid not null references auth.users(id) on delete cascade,
+ message text not null default '' check (char_length(message) <= 500),
+ status text not null default 'pending' check (status in ('pending','accepted','declined','cancelled','completed')),
+ created_at timestamptz not null default now(),
+ updated_at timestamptz not null default now()
+);
+create index if not exists listing_requests_listing_idx on public.listing_requests(listing_id, created_at desc);
+create index if not exists listing_requests_requester_idx on public.listing_requests(requester_id, created_at desc);
+alter table public.listing_requests enable row level security;
+drop policy if exists "Requesters and owners can view requests" on public.listing_requests;
+create policy "Requesters and owners can view requests" on public.listing_requests for select to authenticated using (auth.uid() = requester_id or exists(select 1 from public.listings l where l.id = listing_id and l.owner_id = auth.uid()));
+drop policy if exists "Members can request others listings" on public.listing_requests;
+create policy "Members can request others listings" on public.listing_requests for insert to authenticated with check (auth.uid() = requester_id and exists(select 1 from public.listings l where l.id = listing_id and l.owner_id <> auth.uid() and l.status = 'active'));
+drop policy if exists "Requesters cancel pending requests" on public.listing_requests;
+create policy "Requesters cancel pending requests" on public.listing_requests for update to authenticated using (auth.uid() = requester_id and status = 'pending') with check (auth.uid() = requester_id and status = 'cancelled');
+drop policy if exists "Owners manage requests" on public.listing_requests;
+create policy "Owners manage requests" on public.listing_requests for update to authenticated using (exists(select 1 from public.listings l where l.id = listing_id and l.owner_id = auth.uid())) with check (exists(select 1 from public.listings l where l.id = listing_id and l.owner_id = auth.uid()));
+
 create index if not exists listings_active_created_at_idx on public.listings (created_at desc) where status='active';
 create index if not exists listings_owner_id_idx on public.listings (owner_id);
 alter table public.listings enable row level security;
