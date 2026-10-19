@@ -1,6 +1,8 @@
 package com.vikram.nearshare.ui.screens
 
-import android.Manifest\nimport android.content.pm.PackageManager\nimport android.net.Uri
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -15,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.vikram.nearshare.data.auth.AuthRepository
-import com.vikram.nearshare.data.listings.ListingRepository\nimport com.vikram.nearshare.data.location.DeviceLocation\nimport androidx.core.content.ContextCompat
+import com.vikram.nearshare.data.listings.ListingRepository
+import com.vikram.nearshare.data.location.DeviceLocation
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import java.io.IOException
 
@@ -32,13 +36,24 @@ fun CreateListingScreen(modifier: Modifier = Modifier, onCreated: () -> Unit = {
     var type by remember { mutableStateOf("Borrow") }
     var condition by remember { mutableStateOf("Good") }
     var location by remember { mutableStateOf("") }
-    var image by remember { mutableStateOf<Uri?>(null) }\n    var latitude by remember { mutableStateOf<Double?>(null) }\n    var longitude by remember { mutableStateOf<Double?>(null) }\n    var locationStatus by remember { mutableStateOf("Optional: attach coordinates to help neighbors find this item.") }
+    var image by remember { mutableStateOf<Uri?>(null) }
+    var latitude by remember { mutableStateOf<Double?>(null) }
+    var longitude by remember { mutableStateOf<Double?>(null) }
+    var locationStatus by remember { mutableStateOf("Optional: attach coordinates to help neighbors find this item.") }
     var categoryExpanded by remember { mutableStateOf(false) }
     var conditionExpanded by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val signedIn = auth.accessToken() != null && auth.currentUserId() != null
-    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { image = it }\n    fun attachLocation() {\n        val current = DeviceLocation.lastKnown(context)\n        if (current == null) locationStatus = "Location unavailable. Turn on device location and try again."\n        else { latitude = current.latitude; longitude = current.longitude; locationStatus = "Approximate device coordinates attached." }\n    }\n    val locationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->\n        if (grants.values.any { it }) attachLocation() else locationStatus = "Permission denied. You can still publish using your neighborhood or city."\n    }
+    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { image = it }
+    fun attachLocation() {
+        val current = DeviceLocation.lastKnown(context)
+        if (current == null) locationStatus = "Location unavailable. Turn on device location and try again."
+        else { latitude = current.latitude; longitude = current.longitude; locationStatus = "Approximate device coordinates attached." }
+    }
+    val locationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
+        if (grants.values.any { it }) attachLocation() else locationStatus = "Permission denied. You can still publish using your neighborhood or city."
+    }
     val categories = listOf("Home & DIY", "Electronics", "Books", "Sports & Outdoors", "Kitchen", "Clothing", "Toys & Games", "Other")
     val conditions = listOf("New", "Like new", "Good", "Fair", "For parts")
 

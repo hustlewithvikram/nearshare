@@ -93,6 +93,7 @@ class ListingRepository(private val context: Context) {
     }
     private fun JSONObject.toListing() = Listing(optString("id"), optString("owner_id"), optString("title"),
         optString("description"), optString("category"), optString("listing_type"), optString("item_condition"),
-        optString("location_text"), optString("image_url").takeIf { it.isNotBlank() && it != "null" }, optString("created_at"),\n        if (isNull("latitude")) null else optDouble("latitude"), if (isNull("longitude")) null else optDouble("longitude"))
+        optString("location_text"), optString("image_url").takeIf { it.isNotBlank() && it != "null" }, optString("created_at"),
+        if (isNull("latitude")) null else optDouble("latitude"), if (isNull("longitude")) null else optDouble("longitude"))
     private fun encode(value: String) = java.net.URLEncoder.encode(value, "UTF-8").replace("+", "%20")
 }
